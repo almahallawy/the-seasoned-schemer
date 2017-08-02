@@ -5,3 +5,10 @@
 *.scm~
 *.scm#*
 .#*.scm
+
+#emacs
+*~
+
+#Dr Racket
+*.bak
+compiled/
