@@ -1,4 +1,4 @@
-
+;;Chapter 12. Take Cover
 #lang racket
 
 (define multirember_old

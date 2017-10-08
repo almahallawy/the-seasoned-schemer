@@ -1,3 +1,4 @@
+;;Chapter 11. Welcome Back to the Show
 #lang racket
 
 (define member?
