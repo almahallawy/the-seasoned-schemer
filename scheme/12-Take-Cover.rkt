@@ -162,8 +162,21 @@
                           (m-f a (cdr lat))))))))
       m-f)))
 
-(multirember-f eq?)
+((multirember-f eq?) 'a '(1 2 a 3 4 a 5 6 a 7))
 
+
+(define multirember_5
+  (letrec
+      ((mr (lambda (a lat)
+             (cond
+               ((null? lat) (quote ()))
+               ((eq? (car lat) a)
+                (mr a (cdr lat)))
+               (else (cons (car lat)
+                           (mr a (cdr lat))))))))
+    mr))
+
+(multirember_5 'a '(1 2 a 3 4 a 5 6 a))
 
 ;;Implementing multirember-f using Y
 (define multirember-f-Y-1

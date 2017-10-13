@@ -1,3 +1,4 @@
+;;Code for Chapter 11. Welcome Back to the Show
 
 (defun member? (a lat)
   (cond
@@ -70,6 +71,8 @@
    ((null tup) (quote ()))
    (t (sum-of-prefixes-b 0 tup))))
 
+(sum-of-prefixes '(2 1 9 17 0))
+(sum-of-prefixes '(1 1 1 1 1))
 
 (defun one? (n)
   (zerop (1- n)))
@@ -99,8 +102,10 @@
 (scramble-b '(1 1 1 3 4 2 1 1 9 2) '())
 
 (defun scramble (tup)
-  (scramble-b tup '()))
+  (scramble-b tup (quote ())))
+
 
 (scramble '(1 2 3 4 5 6 7 8 9))
 (scramble '(1 1 1 3 4 2 1 1 9 2))
 (scramble '(1 2 3 1 2 3 4 1 8 2 10))
+
