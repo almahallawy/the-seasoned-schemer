@@ -361,13 +361,13 @@
       ((null? l) 1)
       (else
        (let ((d (depth*-6 (cdr l))))
-          (cond
-            ((atom? (car l)) d)
-            (else
-             (let ((a (add1 (depth*-6 (car l)))))
-               (cond
-                 ((> d a) d)
-                 (else a))))))))))
+         (cond
+           ((atom? (car l)) d)
+           (else
+            (let ((a (add1 (depth*-6 (car l)))))
+              (cond
+                ((> d a) d)
+                (else a))))))))))
 
 (quote '(============================================))
 (depth*-6 '(()
@@ -437,7 +437,7 @@
 (depth*-8 '(c (b (a b) a) a))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;without let;;;;;;;;;;;;;
 
 (define depth*-9
   (lambda (l)
@@ -512,3 +512,418 @@
 (scramble-2 '(1 1 1 3 4 2 1 1 9 2))
 (scramble-2 '(1 2 3 4 5 6 7 8 9))
 (scramble-2 '(1 2 3 1 2 3 4 1 8 2 10))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define leftmost-4
+  (lambda (l)
+    (cond
+      ((null? l) (quote ()))
+      ((atom? (car l)) (car l))
+      (else
+       (let ((a (leftmost-4 (car l))))
+         (cond
+           ((atom? a) a)
+           (else (leftmost-4 (cdr l)))))))))
+
+(quote '(============================================))
+(leftmost-4 '(((a)) b (c)))
+
+
+;;;;;;;;;;;;;;;Leftmost with letcc - my first solution
+
+(define leftmost-5
+  (lambda (l)
+    (call-with-current-continuation
+     (lambda (hop)
+       (cond
+         ((null? l) (quote()))
+         ((atom? (car l))
+          (hop (car l)))
+         (else
+          (let ((a (leftmost-5 (car l))))
+            (cond
+              ((atom? a) (hop a))
+              (else (leftmost-5 (cdr l)))))))))))
+
+(quote '(============================================))
+(leftmost-5 '(((a)) b (c)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define leftmost-6
+  (lambda (l)
+    (call-with-current-continuation
+     (lambda (skip)
+       (lm l skip)))))
+
+(define lm
+  (lambda (l out)
+    (cond
+      ((null? l) (quote ()))
+      ((atom? (car l)) (out (car l)))
+      (else (let ()
+              (lm (car l) out)
+              (lm (cdr l) out))))))
+       
+(quote '(============================================))
+(leftmost-6 '(((a)) b (c)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; move lm inside leftmost using letrec
+;;this the solution that i figured out before checking the book
+
+(define leftmost-7
+  (lambda (l)
+    (call-with-current-continuation
+     (lambda (skip)
+       (letrec
+           ((lm (lambda (l out)
+                  (cond
+                    ((null? l) (quote ()))
+                    ((atom? (car l)) (out (car l)))
+                    (else (let ()
+                            (lm (car l) out)
+                            (lm (cdr l) out)))))))
+         (lm l skip))))))
+
+
+(quote '(============================================))
+
+(leftmost-7 '(((a)) b (c)))
+
+;;;;; no need for out in lm 
+(define leftmost-8
+  (lambda (l)
+    (call-with-current-continuation
+     (lambda (skip)
+       (letrec
+           ((lm (lambda (l)
+                  (cond
+                    ((null? l) (quote ()))
+                    ((atom? (car l)) (skip (car l)))
+                    (else (let ()
+                            (lm (car l))
+                            (lm (cdr l))))))))
+         (lm l))))))
+
+
+(quote '(============================================))
+
+(leftmost-8 '(((a)) b (c)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define leftmost-9
+  (letrec
+      ((lm (lambda (l out)
+             (cond
+               ((null? l) (quote ()))
+               ((atom? (car l)) (out (car l)))
+               (else (let ()
+                       (lm (car l) out)
+                       (lm (cdr l) out)))))))
+    (lambda (l)
+      (call-with-current-continuation
+       (lambda (skip)
+         (lm l skip))))))
+
+
+(quote '(============================================))
+(leftmost-9 '(((a)) b (c)))
+
+;;;;;
+(define leftmost-10
+  (lambda (l)
+    (letrec
+        ((lm (lambda (l out)
+               (cond
+                 ((null? l) (quote ()))
+                 ((atom? (car l)) (out (car l)))
+                 (else (let ()
+                         (lm (car l) out)
+                         (lm (cdr l) out)))))))
+      (call-with-current-continuation
+       (lambda (skip)
+         (lm l skip))))))
+
+(quote '(============================================))
+(leftmost-10 '(((a)) b (c)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define rm
+  (lambda (a l oh)
+    (cond
+      ((null? l) (oh (quote no)))
+      ((atom? (car l))
+       (if (eq? (car l) a)
+           (cdr l)
+           (cons (car l)
+                 (rm a (cdr l) oh))))
+      (else
+       (if (atom?
+            (call-with-current-continuation
+             (lambda (oh)
+               (rm a (car l) oh))))
+           (cons (car l)
+                 (rm a (cdr l) oh))
+           (cons (rm a (car l) 0)
+                 (cdr l)))))))
+
+(define rember1*-4
+  (lambda (a l)
+    (if (atom?
+         (call-with-current-continuation
+          (lambda (oh)
+            (rm a l oh))))
+        l
+        (rm a l (quote ())))))
+
+
+(quote '(============================================))
+
+(rember1*-4 'noodles '((food) more (food)))
+(rember1*-4 'salad '((Swedish rye)
+                     (French (mustard salad tureky))
+                     salad))
+
+(rember1*-4 'meat '((pasta meat)
+                    pasta (noodles meat sauce)
+                    meat tomatoes))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; use let in rember1*-4
+
+(define rember1*-5
+  (lambda (a l)
+    (let
+        ((new-l
+          (call-with-current-continuation
+           (lambda (oh)
+             (rm a l oh)))))
+      (if (atom? new-l)
+          l
+          new-l))))
+
+(quote '(============================================))
+
+(rember1*-5 'noodles '((food) more (food)))
+(rember1*-5 'salad '((Swedish rye)
+                     (French (mustard salad tureky))
+                     salad))
+
+(rember1*-5 'meat '((pasta meat)
+                    pasta (noodles meat sauce)
+                    meat tomatoes))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;;;use let in rm
+
+(define rm-1
+  (lambda (a l oh)
+    (cond
+      ((null? l) (oh (quote no)))
+      ((atom? (car l))
+       (if (eq? (car l) a)
+           (cdr l)
+           (cons (car l)
+                 (rm-1 a (cdr l) oh))))
+      (else
+       (let ((new-car
+              (call-with-current-continuation
+               (lambda (oh)
+                 (rm-1 a (car l) oh)))))
+         (if (atom? new-car)
+             (cons (car l)
+                   (rm-1 a (cdr l) oh))
+             (cons new-car (cdr l))))))))
+
+
+(define rember1*-6
+  (lambda (a l)
+    (let
+        ((new-l
+          (call-with-current-continuation
+           (lambda (oh)
+             (rm-1 a l oh)))))
+      (if (atom? new-l)
+          l
+          new-l))))
+(quote '(============================================))
+
+(rember1*-6 'noodles '((food) more (food)))
+(rember1*-6 'salad '((Swedish rye)
+                     (French (mustard salad tureky))
+                     salad))
+
+(rember1*-6 'meat '((pasta meat)
+                    pasta (noodles meat sauce)
+                    meat tomatoes))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; protect rm
+
+(define rember1*-7
+  (lambda (a l)
+    (letrec
+        ((rm (lambda (a l oh)
+               (cond
+                 ((null? l) (oh (quote no)))
+                 ((atom? (car l))
+                  (if (eq? (car l) a)
+                      (cdr l)
+                      (cons (car l)
+                            (rm a (cdr l) oh))))
+                 (else
+                  (let ((new-car
+                         (call-with-current-continuation
+                          (lambda (oh)
+                            (rm a (car l) oh)))))
+                    (if (atom? new-car)
+                        (cons (car l)
+                              (rm a (cdr l) oh))
+                        (cons new-car (cdr l)))))))))
+      (let ((new-l
+             (call-with-current-continuation
+              (lambda (oh)
+                (rm a l oh)))))
+        (if (atom? new-l)
+            l
+            new-l)))))
+
+(quote '(============================================))
+(rember1*-7 'noodles '((food) more (food)))
+(rember1*-7 'salad '((Swedish rye)
+                     (French (mustard salad tureky))
+                     salad))
+
+(rember1*-7 'meat '((pasta meat)
+                    pasta (noodles meat sauce)
+                    meat tomatoes))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;Understand letrec, letecc ,and let with multiple vlaues
+(quote '(============================================))
+
+
+(let ((a (quote little)))
+  (quote 'schemer)
+  a)
+
+;;(begin f1 f2 ... fn) evaluates f1 ... fn in turn and then returns the value of fn.
+(begin
+  (quote 'schemer)
+  'a)
+
+
+(letrec ((a (lambda (x)
+              (print x))))
+  (quote 'season)
+  (a 'schemer))
+
+;(try x y z)
+;=
+;(letcc sucess
+;  (letcc x
+;    (sucess y))
+;  z)
+(quote '(============================================))
+
+(call-with-current-continuation
+ (lambda (hop)
+   (quote daniel)))
+
+(call-with-current-continuation
+ (lambda (hop)
+   (quote daniel)
+   (quote friedman)))
+
+(call-with-current-continuation
+ (lambda (success)
+   (call-with-current-continuation
+    (lambda (oh)
+      (success (oh 'no))))))
+
+(call-with-current-continuation
+ (lambda (success)
+   (call-with-current-continuation
+    (lambda (oh)
+      (success 'yes)))))
+
+(call-with-current-continuation
+ (lambda (success)
+   (call-with-current-continuation ;; This letcc has a value = 'no
+    (lambda (oh)
+      (success (oh 'no)))) ;;success will be skipped by call to oh
+   (quote L)));;This is the value executed and returned
+
+(call-with-current-continuation
+ (lambda (success)
+   (call-with-current-continuation ;; this letcc will be skipped by the call for success
+    (lambda (oh)
+      (success (quote (1 2 3)))));;this is the value returned
+   (quote L))) ;;this will not be executed 
+
+(quote '(============================================))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Define try using two letcc
+;;http://community.schemewiki.org/?seasoned-schemer
+
+;(define-syntax letcc 
+;  (syntax-rules () 
+;    ((letcc var body ...) 
+;     (call-with-current-continuation 
+;       (lambda (var)  body ... ))))) 
+;
+; (define-syntax try 
+;  (syntax-rules () 
+;    ((try var a . b) 
+;     (letcc success 
+;       (letcc var (success a)) . b)))) 
+
+;define try using call-with-current-continuation
+(define-syntax try 
+  (syntax-rules () 
+    ((try var a b)
+     (call-with-current-continuation
+      (lambda (success)
+        (call-with-current-continuation
+         (lambda (var)
+           (success a)))
+        b)))))
+
+
+(define rm-2
+  (lambda (a l oh)
+    (cond
+      ((null? l) (oh (quote no)))
+      ((atom? (car l))
+       (if (eq? (car l) a)
+           (cdr l)
+           (cons (car l)
+                 (rm-2 a (cdr l) oh))))
+      (else
+       (try oh2
+            (cons (rm-2 a (car l) oh2)
+                  (cdr l))
+            (cons (car l)
+                  (rm-2 a (cdr l) oh)))))))
+
+
+(define rember1*-8
+  (lambda (a l)
+    (try oh (rm-2 a l oh) l)))
+
+(rember1*-8 'noodles '((food) more (food)))
+(rember1*-8 'salad '((Swedish rye)
+                     (French (mustard salad tureky))
+                     salad))
+
+(rember1*-8 'meat '((pasta meat)
+                    pasta (noodles meat sauce)
+                    meat tomatoes))
+
