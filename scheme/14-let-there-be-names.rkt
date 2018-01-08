@@ -765,37 +765,37 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; protect rm
+;;; protect rm and remove a. 12& 13 commandment
 
 (define rember1*-7
   (lambda (a l)
     (letrec
-        ((rm (lambda (a l oh)
+        ((rm (lambda (l oh)
                (cond
                  ((null? l) (oh (quote no)))
                  ((atom? (car l))
                   (if (eq? (car l) a)
                       (cdr l)
                       (cons (car l)
-                            (rm a (cdr l) oh))))
+                            (rm (cdr l) oh))))
                  (else
                   (let ((new-car
                          (call-with-current-continuation
                           (lambda (oh)
-                            (rm a (car l) oh)))))
+                            (rm (car l) oh)))))
                     (if (atom? new-car)
                         (cons (car l)
-                              (rm a (cdr l) oh))
+                              (rm (cdr l) oh))
                         (cons new-car (cdr l)))))))))
       (let ((new-l
              (call-with-current-continuation
               (lambda (oh)
-                (rm a l oh)))))
+                (rm l oh)))))
         (if (atom? new-l)
             l
             new-l)))))
 
-(quote '(============================================))
+(quote '(rember1*-7============================================))
 (rember1*-7 'noodles '((food) more (food)))
 (rember1*-7 'salad '((Swedish rye)
                      (French (mustard salad tureky))
