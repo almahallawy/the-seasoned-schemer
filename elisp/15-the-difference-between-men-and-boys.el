@@ -4,7 +4,6 @@
     (cons (quote chicago)
           (cons (quote pizz)
                 (quote ()))))
-
 (setq x
     (cons (quote chicago)
           (cons (quote pizz)
@@ -46,6 +45,7 @@ x
 
 x
 
+
 (defun diner (food)
   (cons (quote milkshake)
         (cons food
@@ -65,6 +65,8 @@ x
 
 (dinerR (quote pecanpie))
 
+x
+
 (gourmand (quote onion))
 
 x
@@ -77,8 +79,16 @@ x
               (cons x
                     (quote ()))))))
 
-;;if (setq omnivore)
-;(funcall omnivore (quote bouillabaisee))
+;;Different Implementation 
+(setq omnivore
+    (let ((x (quote minestrone)))
+      (lambda (food)
+        (setq x food)
+        (cons food
+              (cons x
+                    (quote ()))))))
+
+
 (funcall omnivore (quote bouillabaisse))
 
 
@@ -93,6 +103,7 @@ x
 
 
 
+`
 
 
 
