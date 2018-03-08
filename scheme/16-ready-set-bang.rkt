@@ -63,7 +63,7 @@ ingredients
 ingredients
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define deep
   (lambda (m)
     (cond
@@ -71,8 +71,14 @@ ingredients
       (else (cons (deep (sub1 m))
                   (quote ()))))))
 
+(quote '(===========deep=============))
 
 (deep 3)
+
+(deep 7)
+
+(deep 0)
+
 
 (define Ns (quote ()))
 
@@ -93,7 +99,7 @@ Ns
 (set! Ns (quote ()))
 
 ;;Remember All the resutls
-(quote '(==============Remember All the resutl))
+(quote '(==============Remember All the resutl============))
 
 (define Rs (quote ()))
 
@@ -119,7 +125,7 @@ Rs
 (set! Rs (quote ()))
 
 
-(quote '(===========deep-R2))
+(quote '(===========deep-R2=================))
 
 ;;Using the 15th Commadments
 (define deepR-2
@@ -147,7 +153,4 @@ Ns
 Rs
 
 
-;;;;;;;;;;;;;;;;;;;;;;;
-(define find
-  (lambda (n Ns Rs)
-    (null? 
+
