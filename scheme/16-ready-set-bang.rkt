@@ -62,6 +62,27 @@ ingredients
 
 ingredients
 
+;;Using 16 Commandment
+(quote '(===========Sweet-toothR Using 16 Commandment=============))
+(define sweet-toothR1
+  (let ((ingredients (quote ())))
+    (lambda (food)
+      (set! ingredients
+            (cons food ingredients))
+      (print ingredients)
+      (cons food
+            (cons (quote cake)
+                  (quote ()))))))
+
+
+(sweet-toothR1 'chocolate)
+
+(sweet-toothR1 'fruit)
+
+(sweet-toothR1 'carrot)
+
+(sweet-toothR1 'cheese)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define deep-1
