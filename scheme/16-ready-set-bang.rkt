@@ -1,4 +1,4 @@
-#lang racket
+#lang scheme
 
 ;;Chapter 16. Ready, Set, Bang!
 
@@ -367,10 +367,10 @@ Rs
 (define L
   (lambda (length)
     (lambda (l)
+      ;(print l)
       (cond
         ((null? l) 0)
         (else (add1 (length (cdr l))))))))
-
 
 (define length-4
   (let ((h (lambda (l) 0)))
@@ -379,6 +379,38 @@ Rs
     h))
 
 (length-4 '(1 2 3 4))
+
+(quote (=========(set! h (L h))====))
+
+;;why we can't use (L h) directly instead of (L (lambda (arg) (h arg)))
+(define length_4_1
+  (let ((h (lambda (l) 100)))
+    (set! h
+          (L h))
+    h))
+
+;;because doing this will substitute h in (L h) with the  (lambda (l) 0) instead of the function that looks like length that we need to get from L. So h will be:
+
+;(lambda (l)
+;  (cond
+;    ((null? l) 0)
+;    (else (add1
+;           ((lambda (l) 100)
+;            (cdr l))))))
+
+;;However using (lambda (arg) (h arg)), we can get h that refers to itself as
+
+;(lambda (l)
+;  (cond
+;    ((null? l) 0)
+;    (else (add1
+;           ((lambda (arg) (h arg))
+;            (cdr l))))))
+;
+
+;;So the following gives a wrong answer
+(length_4_1 '(a b c));;101
+
 
 (define Y!
   (lambda (L)
@@ -408,10 +440,11 @@ Rs
       ((atom? (car l))
        (depth*-old (cdr l)))
       (else
-       (let ((a (add1 (depth*-old (car l))))
-             (d (depth*-old (cdr l))))
-         (max d a))))))
+       (max (add1 (depth*-old (car l)))
+            (depth*-old (cdr l)))))))
 
+(quote ====depth====)
+(depth*-old '(((1)) 1))
 
 (define D
   (lambda (depth*)
@@ -433,6 +466,7 @@ Rs
 
 (depth* '(c (b (a b) a) a))
 
+(quote ===========Y-Combinator============)
 
 ;Y combinator - Applicative-Order Y
 (define Y
@@ -445,6 +479,8 @@ Rs
 
 (length_6 '(1 2 3 4 5 6))
 
+(quote ==============biz=================)
+
 (define biz
   (let ((x 0))
     (lambda (f)
@@ -456,6 +492,7 @@ Rs
 
 (println '((Y biz) 5))
 ((Y biz) 5)
+;;calling ((Y biz) 5) again
 ;;((Y biz) 5) ; NO answer, will yield infinite recursion call
 ;;because x = 5 before calling ((Y biz) 5) one more time, so X will keep increasing and will never hav a = x
 
