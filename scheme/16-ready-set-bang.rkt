@@ -389,7 +389,8 @@ Rs
           (L h))
     h))
 
-;;because doing this will substitute h in (L h) with the  (lambda (l) 0) instead of the function that looks like length that we need to get from L. So h will be:
+
+;;because doing this will substitute h in (L h) with the  (lambda (l) 0) instead of the function that looks like length that we need to get from L. So the value of (L h) will be the function
 
 ;(lambda (l)
 ;  (cond
@@ -410,6 +411,108 @@ Rs
 
 ;;So the following gives a wrong answer
 (length_4_1 '(a b c));;101
+
+
+;;You need to understand how the binding works in Scheme. Here is couple of useful references:
+;;https://docs.racket-lang.org/guide/let.html
+;;https://www.scheme.com/tspl4/binding.html
+;;https://docs.racket-lang.org/guide/set_.html
+;;https://www.gnu.org/software/mit-scheme/documentation/mit-scheme-ref/Lambda-Expressions.html
+;;https://www.gnu.org/software/mit-scheme/documentation/mit-scheme-ref/Lexical-Binding.html
+;;https://www.gnu.org/software/mit-scheme/documentation/mit-scheme-ref/Assignments.html
+;;https://www.scheme.com/tspl4/start.html#./start:h5
+;;https://www.scheme.com/tspl4/start.html#./start:h9
+
+;;-------------------------------------------------------------------------------------------------
+;;Source: https://www.scheme.com/tspl4/start.html#./start:h5 
+;; As with let expressions, lambda expressions become somewhat more interesting when they are nested within other lambda or let expressions.
+
+;; (let ([x 'a])
+;;   (let ([f (lambda (y) (list x y))])
+;;     (f 'b))) ==> (a b)
+
+;; The occurrence of x within the lambda expression refers to the x outside the lambda that is bound by the outer let expression. The variable x is said to occur free in the lambda expression or to be a free variable of the lambda expression. The variable y does not occur free in the lambda expression since it is bound by the lambda expression. A variable that occurs free in a lambda expression should be bound, e.g., by an enclosing lambda or let expression, unless the variable is (like the names of primitive procedures) bound outside of the expression, as we discuss in the following section.
+
+;; What happens when the procedure is applied somewhere outside the scope of the bindings for variables that occur free within the procedure, as in the following expression?
+
+;; (let ([f (let ([x 'sam])
+;;            (lambda (y z) (list x y z)))])
+;;   (f 'i 'am)) ==> (sam i am)
+
+;; The answer is that the same bindings that were in effect when the procedure was created are in effect again when the procedure is applied. This is true even if another binding for x is visible where the procedure is applied.
+
+;; (let ([f (let ([x 'sam])
+;;            (lambda (y z) (list x y z)))])
+;;   (let ([x 'not-sam])
+;;     (f 'i 'am))) ==> (sam i am)
+
+;; In both cases, the value of x within the procedure named f is sam.
+
+;;------------------------------------------------------------------------------------
+;;Source: https://www.scheme.com/tspl4/binding.html#./binding:h7
+;;syntax: (set! var expr) 
+;;set! does not establish a new binding for var but rather alters the value of an existing binding. It first evaluates expr, then assigns var to the value of expr. Any subsequent reference to var within the scope of the altered binding evaluates to the new value.
+
+
+;;------------------------------------------------------------------------
+;;Source: https://www.scheme.com/tspl4/binding.html#./binding:h4
+;; syntax: (letrec ((var expr) ...) body1 body2 ...) 
+;; returns: the values of the final body expression 
+;; libraries: (rnrs base), (rnrs)
+
+;; letrec is similar to let and let*, except that all of the expressions expr ... are within the scope of all of the variables var .... letrec allows the definition of mutually recursive procedures.
+
+;; (letrec ([sum (lambda (x)
+;;                 (if (zero? x)
+;;                     0
+;;                     (+ x (sum (- x 1)))))])
+;;   (sum 5)) <graphic> 15
+
+;; The order of evaluation of the expressions expr ... is unspecified, so a program must not evaluate a reference to any of the variables bound by the letrec expression before all of the values have been computed. (Occurrence of a variable within a lambda expression does not count as a reference, unless the resulting procedure is applied before all of the values have been computed.) If this restriction is violated, an exception with condition type &assertion is raised.
+
+;;  ...
+;; A letrec expression of the form
+
+;; (letrec ((var expr) ...) body1 body2 ...)
+
+;; may be expressed in terms of let and set! as
+
+;; (let ((var #f) ...)
+;;   (let ((temp expr) ...)
+;;     (set! var temp) ...
+;;     (let () body1 body2 ...)))
+
+;; where temp ... are fresh variables, i.e., ones that do not already appear in the letrec expression, one for each (var expr) pair. The outer let expression establishes the variable bindings. The initial value given each variable is unimportant, so any value suffices in place of #f. The bindings are established first so that expr ... may contain occurrences of the variables, i.e., so that the expressions are computed within the scope of the variables. The middle let evaluates the values and binds them to the temporary variables, and the set! expressions assign each variable to the corresponding value. The inner let is present in case the body contains internal definitions.
+
+
+;;--------------------------------------------------------------------------
+;;Source: https://docs.racket-lang.org/guide/let.html#%28part._.Recursive_.Binding__letrec%29
+
+;; The syntax of letrec is also the same as let:
+
+;; (letrec ([id expr] ...) body ...+)
+;; While let makes its bindings available only in the bodys, and let* makes its bindings available to any later binding expr, letrec makes its bindings available to all other exprs—even earlier ones. In other words, letrec bindings are recursive.
+
+;; The exprs in a letrec form are most often lambda forms for recursive and mutually recursive functions
+
+;; While the exprs of a letrec form are typically lambda expressions, they can be any expression. The expressions are evaluated in order, and after each value is obtained, it is immediately associated with its corresponding id. If an id is referenced before its value is ready, an error is raised, just as for internal definitions.
+
+;; > (letrec ([quicksand quicksand])
+;;     quicksand)
+;; quicksand: undefined;
+
+;;  cannot use before initialization
+
+;;-------------------------------------------------------------------------------------
+;;Souurce: https://www.gnu.org/software/mit-scheme/documentation/mit-scheme-ref/Lexical-Binding.html#Lexical-Binding
+
+;; special form: letrec ((variable init) …) expression expression …
+;; The variables are bound to fresh locations holding unassigned values, the inits are evaluated in the extended environment (in some unspecified order), each variable is assigned to the result of the corresponding init, the expressions are evaluated sequentially in the extended environment, and the value of the last expression is returned. Each binding of a variable has the entire letrec expression as its region, making it possible to define mutually recursive procedures.
+
+;; MIT/GNU Scheme allows any of the inits to be omitted, in which case the corresponding variables are unassigned.
+
+;; One restriction on letrec is very important: it shall be possible to evaluated each init without assigning or referring to the value of any variable. If this restriction is violated, then it is an error. The restriction is necessary because Scheme passes arguments by value rather than by name. In the most common uses of letrec, all the inits are lambda or delay expressions and the restriction is satisfied automatically.
+
 
 
 (define Y!
