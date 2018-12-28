@@ -466,7 +466,7 @@ Rs
 ;;                 (if (zero? x)
 ;;                     0
 ;;                     (+ x (sum (- x 1)))))])
-;;   (sum 5)) <graphic> 15
+;;   (sum 5)) ==> 15
 
 ;; The order of evaluation of the expressions expr ... is unspecified, so a program must not evaluate a reference to any of the variables bound by the letrec expression before all of the values have been computed. (Occurrence of a variable within a lambda expression does not count as a reference, unless the resulting procedure is applied before all of the values have been computed.) If this restriction is violated, an exception with condition type &assertion is raised.
 
@@ -513,7 +513,7 @@ Rs
 
 ;; One restriction on letrec is very important: it shall be possible to evaluated each init without assigning or referring to the value of any variable. If this restriction is violated, then it is an error. The restriction is necessary because Scheme passes arguments by value rather than by name. In the most common uses of letrec, all the inits are lambda or delay expressions and the restriction is satisfied automatically.
 
-
+;;----------------------------------------------------------------------------------------------
 
 (define Y!
   (lambda (L)
@@ -582,7 +582,9 @@ Rs
 
 (length_6 '(1 2 3 4 5 6))
 
-(quote ==============biz=================)
+;;-----------------------------------------------------------------
+
+(println '-----------------biz--------------)
 
 (define biz
   (let ((x 0))
@@ -593,7 +595,9 @@ Rs
             0
             (f a))))))
 
-(println '((Y biz) 5))
+(print '****)
+(print '((Y biz) 5))
+(println '=)
 ((Y biz) 5)
 ;;calling ((Y biz) 5) again
 ;;((Y biz) 5) ; NO answer, will yield infinite recursion call
@@ -601,8 +605,7 @@ Rs
 
 ;;((Y! biz) 5) ;;NO Answer
 
-;;why Y! brings now answer???
-(quote '(===========================))
+;;why Y! brings no answer???
 
 (define x 0)
 
@@ -614,7 +617,9 @@ Rs
           0
           (f a)))))
 
-(println '((Y biz1) 5))
+(print '****)
+(print '((Y biz1) 5))
+(println '=)
 ((Y biz1) 5)
 ;((Y! biz1) 5) ;;NO answer
 
@@ -626,7 +631,7 @@ Rs
          (biz1 (lambda (arg) (h arg))))
     h))
 
-
+;;(println '(length-7 5))
 ;;(length-7 5) ;;Still no answer!!
 
 (define h1 (lambda (l) (quote ())))
@@ -637,26 +642,27 @@ Rs
           (biz1 (lambda (arg) (h1 arg))))
     h1))
 
+;;(println '(length-8 5))
 ;;(length-8 5) ;; No answer
 
 (define h2 (lambda (l) (quote ())))
 (set! h2
       (biz1 (lambda (arg) (h2 arg))))
 
+;;(println '(h2 5))
+;;(h2 5) ;;no answer
 
-;(h2 5) ;;no answer
+;;; Different Biz where (set! x (add1 x)) is moved inside the internal lambda(a)
 
 (set! x 0)
 (define Nx (quote ()))
-(define y 0)
 
 (define biz2
   (lambda (f)
-    (set! y (add1 y))
-    ;(print 'biz2)
+    (println 'biz2-1)
     (lambda (a)
-      (set! x (add1 x))
-      ;(print 'biz2)
+      (set! x (add1 x)) ;;<---- Note that x increase inside internal lambda, not like  biz and biz1 where it is increased outsie this internal lambda
+      (println 'biz2-2)
       (set! Nx (cons x Nx))
       (if (= a x)
           0
@@ -667,52 +673,71 @@ Rs
 (set! h3
       (biz2 (lambda (arg) (h3 arg))))
 
-(quote '(-----------------------))
-(h3 5) ;;works
-;Nx
+(print '****)
+(print '(h3 5))
+(println ':)
+(h3 5) ;;it works
+(println '****Nx=)
+Nx
 
-; So not just the shap of the function provided to Y and Y! cause the infinite loop.
-;;it seems if the name in the set used in the recursive funciton body, it will cause infintie loop
-
-(quote '(_____________________________))
-
-(define biz3
+;;biz3 is similar to the original biz and biz1 but with more println for clarification
+(define biz3 
   (lambda (f)
     (set! x (add1 x))
-    (println 'biz)
+    (println 'biz3_1)
     (lambda (a)
-      (println 'biz3)
+      (println 'biz3_2)
+      (print  'x=)
       (println x)
       (if (= a x)
-          (println 'answer)
+          (println 'RecursionEnded)
           (f a)))))
 
 (define h4 (lambda (l) (quote ())))
 
-(set! x 4)  ;with (h4 5) will work, note that (add1 x) when evaluating (set! h4..)
+(println '****x=4)
+(set! x 4)  ;setting x=4 will in order for (h4 5) to work, note that (add1 x) is executed once when evaluating (set! h4..), biz3_1 is printed
+
 x
 
+(print '***)
+(print '(set! h4 (biz3 (lambda (arg) (h4 arg)))))
+(println '=)
 (set! h4
       (biz3 (lambda (arg) (h4 arg))))
+
+(println '****x=)
 x
 
-(println '(h4 5))
-(h4 5) ;answer
+(print '****)
+(print '(h4 5))
+(println '=)
+(h4 5) ;recursion ends
 
-(println '(h4 6))
+(print '****)
+(println '(set! x 6))
 (set! x 6)
-(h4 6)  ;answer
 
-(println '((Y biz3) 5))
+(print '****)
+(print '(h4 6))
+(println '=)
+(h4 6) ;recursion ends
+
+;;Now notice the output difference when using Y
+(print '****)
+(print '((Y biz3) 5))
+(println '=)
 (set! x 0)
 ((Y biz3) 5)
+
+(println '****x=)
 x
 
 (set! x 0)
 ;;(h4 6)  ;inifinte loop. biz3 ll be printed infinitly. And x is not increased, which means (set! x (add1 x)) is not executed
 ;((Y! biz3) 5)
 
-;;Comparing ((Y biz3) 5) vs ((Y! biz3) 5) or (h4 5)) shows that (set! x (add1 x)) is executed in Y with every recursion call but it is  not executed in Y1 or h4 with every recursion call.
+;;Comparing ((Y biz3) 5) vs ((Y! biz3) 5) or (h4 5)) shows that (set! x (add1 x)) is executed in Y with every recursion call but it is  not executed in Y! or h4 with every recursion call.
 
 ;; When evaluting (set! h4 ..)  or (Y! biz3) , (set! x (add1 x)) evaluted only once, but it is not evaluated when we recur using h4 or Y! because (set! x (add1 x))  doesn't exist anymore. Why?
 
