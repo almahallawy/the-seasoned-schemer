@@ -661,7 +661,7 @@ Rs
   (lambda (f)
     (println 'biz2-1)
     (lambda (a)
-      (set! x (add1 x)) ;;<---- Note that x increase inside internal lambda, not like  biz and biz1 where it is increased outsie this internal lambda
+      (set! x (add1 x)) ;;<---- Note that x is increased inside internal lambda, not like  biz and biz1 where it is increased outsie this internal lambda
       (println 'biz2-2)
       (set! Nx (cons x Nx))
       (if (= a x)
@@ -670,6 +670,9 @@ Rs
 
 (define h3 (lambda (l) (quote ())))
 
+(print '****)
+(print '(set! h3(biz2 (lambda (arg) (h3 arg)))))
+(println '=)
 (set! h3
       (biz2 (lambda (arg) (h3 arg))))
 
@@ -680,11 +683,21 @@ Rs
 (println '****Nx=)
 Nx
 
+(set! x 0)
+(set! Nx (quote ()))
+
+(print '***)
+(print '((Y! biz2) 5))
+(println '=)
+((Y! biz2) 5) ;;Has an answer
+
 ;;biz3 is similar to the original biz and biz1 but with more println for clarification
 (define biz3 
   (lambda (f)
     (set! x (add1 x))
     (println 'biz3_1)
+    (print  'x=)
+    (println x)
     (lambda (a)
       (println 'biz3_2)
       (print  'x=)
@@ -723,21 +736,31 @@ x
 (println '=)
 (h4 6) ;recursion ends
 
-;;Now notice the output difference when using Y
+;;Now notice the output when using Y combinator instead
+
+;(Y biz3)
+(print '****)
+(print '(Y biz3))
+(println '=)
+(Y biz3)
+
+(set! x 0)
+(println '****x=)
+x
+
 (print '****)
 (print '((Y biz3) 5))
 (println '=)
-(set! x 0)
 ((Y biz3) 5)
 
 (println '****x=)
 x
 
 (set! x 0)
-;;(h4 6)  ;inifinte loop. biz3 ll be printed infinitly. And x is not increased, which means (set! x (add1 x)) is not executed
-;((Y! biz3) 5)
+;(h4 6)  ;inifinte loop. biz3_2 ll be printed infinitly. And x is not increased, which means (set! x (add1 x)) is not executed
+;;((Y! biz3) 5) ;;Also will go to infinite loop.
 
-;;Comparing ((Y biz3) 5) vs ((Y! biz3) 5) or (h4 5)) shows that (set! x (add1 x)) is executed in Y with every recursion call but it is  not executed in Y! or h4 with every recursion call.
+;;Comparing ((Y biz3) 5) vs ((Y! biz3) 5) / (h4 5)) shows that (set! x (add1 x)) is executed in Y with every recursion call but it is  not executed in Y! or h4 with every recursion call.
 
 ;; When evaluting (set! h4 ..)  or (Y! biz3) , (set! x (add1 x)) evaluted only once, but it is not evaluated when we recur using h4 or Y! because (set! x (add1 x))  doesn't exist anymore. Why?
 
@@ -746,12 +769,14 @@ x
 
 ;;that is why x is not increased and we kept recurring  (f a) inifnite times because x is not changed closer to termination which violated Fourth Commadment
 
-;;However in Y , (set! x (add1 x)) exists and we dont' have this problem.
+;;However in Y , (set! x (add1 x)) exists and is executed with every recursion call and we dont' have the problem we faces with Y!
 
 
-(Y biz3)
+;To understand more why Y works check the following substituion of biz3 in Y defintion
 
-;==>
+(println '--------------------------------------------------------)
+
+;;(Y biz3) =
 
 ((lambda (le)
   ((lambda (f) (f f))
@@ -766,14 +791,20 @@ x
    (biz3 (lambda (x) ((f f) x)))))
 
 
-;======
-(println '((Y biz3) 2)) 
+;----------
+;;Now apply biz3 on number
+
+(print '****)
+(print '((Y biz3) 2))
+(println '=)
 (set! x 0)
 
 ((Y biz3) 2)
 
-;==>
-(println '(lambda (f) (f f)))
+;Expand Y ==>
+(print '****)
+(print '(((lambda (f) (f f))) ... 2))
+(println '=)
 (set! x 0)
 
 (((lambda (f) (f f))
@@ -783,8 +814,11 @@ x
 
 ;==>
 (set! x 0)
-(println '((f f) 2))
+(print '****)
+(print '((f f) 2))
+(print '=)
 
+;;[Repeat]******--==>>
 (((lambda (f)
    (biz3 (lambda (x) ((f f) x))))
  (lambda (f)
@@ -793,7 +827,9 @@ x
 
 ;==>
 (set! x 0)
-(println '(biz3 (lambda x)))
+(print '****)
+(print '(biz3 (lambda x)))
+(println '=)
 
 ((biz3 (lambda (x)
          (((lambda (f)
@@ -802,4 +838,70 @@ x
              (biz3 (lambda (x) ((f f) x))))) x)))
  2)
 
+;===>
 
+(set! x 0)
+(print '****)
+(print '((lambda(f)... ) 2))
+(println '=)
+
+(((lambda (f)
+    (set! x (add1 x))
+    (println 'biz3_1)
+    (print  'x=)
+    (println x)
+    (lambda (a)
+      (println 'biz3_2)
+      (print  'x=)
+      (println x)
+      (if (= a x)
+          (println 'RecursionEnded)
+          (f a))))
+  (lambda (x)
+    (((lambda (f)
+        (biz3 (lambda (x) ((f f) x))))
+      (lambda (f)
+        (biz3 (lambda (x) ((f f) x))))) x)))
+ 2)
+;==>
+(set! x 1) ;;set x=1 because it will be already increased by (set! x (add1 x)) in lambda(f)
+
+(print '****)
+(print '((lambda (a) ...(lambda (x)....)) 2))
+(println '=)
+
+((lambda (a)
+   (println 'biz3_2)
+   (print  'x=)
+   (println x)
+   (if (= a x)
+       (println 'RecursionEnded)
+       ((lambda (x)
+          (((lambda (f)
+              (biz3 (lambda (x) ((f f) x))))
+            (lambda (f)
+              (biz3 (lambda (x) ((f f) x))))) x))
+        a)))
+ 2)
+
+;==>
+(println '------------)
+(set! x 1)
+
+((lambda (x)
+   (((lambda (f)
+       (biz3 (lambda (x) ((f f) x))))
+     (lambda (f)
+       (biz3 (lambda (x) ((f f) x))))) x))
+ 2)
+
+(println '--------------)
+(set! x 1)
+
+(((lambda (f)
+       (biz3 (lambda (x) ((f f) x))))
+     (lambda (f)
+       (biz3 (lambda (x) ((f f) x)))))
+ 2)
+;;which is exactly the same at the substution at link marked with: [Repeat]******--==>>
+;;and the substituion will be the same as before till x = a = 2
