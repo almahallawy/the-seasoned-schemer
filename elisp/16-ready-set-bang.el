@@ -12,6 +12,7 @@
 
 (defun last (quote anglefood))
 
+
 (sweet-tooth 'chocolate)
 
 (sweet-tooth 'fruit)
@@ -83,7 +84,7 @@ ingredients
 ;; https://ftp.gnu.org/old-gnu/Manuals/elisp-manual-20-2.5/html_chapter/elisp_19.html
 ;; https://stackoverflow.com/questions/10728859/how-do-i-insert-a-lenghthier-list-in-my-buffer-with-elisp
 
-;To solve this, set the variable here or in .emacs file
+;To solve this, set the variable eval-expression-print-level here or in .emacs file
 (print eval-expression-print-level)
 
 ;;4 is my value
@@ -91,10 +92,9 @@ ingredients
 ;;set to nil to have no limit
 (setq eval-expression-print-level nil)
 
-
 (deep 0)
 
-;;(defun Ns (quote ())) doesn't work 
+;;(defun Ns (quote ())) ;;doesn't work , we need to use setq
 (setq Ns (quote ()))
 
 (defun deepR (n)
@@ -125,7 +125,6 @@ Ns
 (deepR 3)
 Rs
 Ns
-
 
 (defun find (n Ns Rs)
   (letrec ((A (lambda (ns rs)
@@ -196,6 +195,7 @@ Rs
 
 (funcall deepM 16)
 
+;;Here we use defun instead of setq
 (defun deepM ()
   (let ((Rs (quote ()))
 	(Ns (quote ())))
@@ -213,7 +213,7 @@ Rs
    (t (cons (funcall (deepM) (1- m))
 	    (quote ())))))
 
-(funcall (deepM) 16)
+(funcall (deepM) 16);;note that deepM is surrounded by "()"
 
 (defun find (n Ns Rs)
   (letrec ((A (lambda (ns rs)
@@ -232,11 +232,13 @@ Rs
 (defun atom? (x)
   (not (listp x)))
 
+(atom? nil);; nil not atom
+
 (defun deepM ()
   (let ((Rs (quote ()))
 	(Ns (quote ())))
     (lambda (n)
-       (if (null (find n Ns Rs))
+       (if (null (find n Ns Rs)) ;;use null instead of atom? because nil is not atom
 	  (let ((result (deep n)))
 	    (setq Rs (cons result Rs))
 	    (setq Ns (cons n Ns))
@@ -274,9 +276,12 @@ Rs
 
 (funcall deepM 6)
 (funcall deepM 4)
+(funcall deepM 10)
+
+;;Reset deepM
+(setq deepM (quote ()))
 
 ;;Using setq keep the value of the imaginary Rs Ns between calls
-
 (setq deepM
       (let ((Rs (quote ()))
 	    (Ns (quote ())))
@@ -290,9 +295,16 @@ Rs
 		  result)
 	      exists)))))
 
+(defun deep (m)
+  (cond
+   ((zerop m) (quote pizza))
+   (t (cons (funcall deepM (1- m))
+	    (quote ())))))
+
 (funcall deepM 6)
 (funcall deepM 6)
 (funcall deepM 4)
+(funcall deepM 10)
 
 
-		  
+

@@ -80,7 +80,7 @@ x
               (cons x
                     (quote ()))))))
 
-(funcall (omnivore) (quote bouillabaisse))
+(funcall (omnivore) (quote bouillabaisse)) ;;note that parenthesis surronding omnivore
 
 x;;not same x in omnivore!!
 
