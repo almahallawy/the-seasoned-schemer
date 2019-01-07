@@ -654,8 +654,6 @@ Rs
       (lambda (l)
 	0))
 
-(funcall length '(1 3))
-
 (setq length
       (lambda (l)
 	(cond
@@ -684,7 +682,7 @@ Rs
      ((null l) 0)
      (t (1+ (funcall length (cdr l)))))))
 
-(setq length nil)
+(makunbound 'length)
 
 (setq length
       (let ((h (lambda (l) 0)))
@@ -692,13 +690,82 @@ Rs
 	      (L (lambda (arg) (funcall h arg))))
 	h))
 
-
 (funcall length '(1 2 3 4 5 6 7))
 
+(makunbound 'length)
 
-(fboundp 'length)
+;;-----------------------------------------------
+;;what if we try (L h) instead
 
-(boundp 'length)
+(setq length
+      (let ((h (lambda (l) 0)))
+	(setq h
+	      (L h))
+	h))
+
+(funcall length '(1 2 3 4 5))
+;; => 1 ;;because of lexical binding h will be evaluated to 0 instead of the functoin returned by L
+;;Check Chapter 16 scheme code for more details
+;;------------------------------------------------
+
+(defun Y! (L)
+  (let ((h (lambda (l) (quote ()))))
+    (setq h
+	  (funcall L (lambda (arg) (funcall h arg))))
+    h))
+
+(makunbound 'length)
+
+(setq length (Y! L));; Error: Void variable L, why, because we L is not variable, it is function
+;; and we need to pass Y! a function
+
+(boundp 'L)
+(fboundp 'L)
+(symbol-value 'L)
+(symbol-function 'L)
+
+
+;;You need to Pass L as function as shown below
+(setq length (Y! (function L)))
+
+(funcall length '(1 2 3 4))
+
+
+(defun Y-bang (f)
+  (letrec ((h (f (lambda (arg) (h arg)))))
+    h))
+
+(defun max (n m)
+  (if (> n m) n m))
+
+(defun atom? (x)
+  (not (listp x)))
+
+(defun depth* (l)
+  (cond
+   ((null l) 1)
+   ((atom? (car l))
+    (depth* (cdr l)))
+   (t (max
+       (1+ (depth* (car l)))
+       (depth* (cdr l))))))
+
+(depth* '((pickled) peppers (peppers pickled)))
+(depth* '(c (b (a b) a) a))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
