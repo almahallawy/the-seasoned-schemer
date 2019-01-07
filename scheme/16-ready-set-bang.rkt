@@ -601,7 +601,7 @@ Rs
 ((Y biz) 5)
 ;;calling ((Y biz) 5) again
 ;;((Y biz) 5) ; NO answer, will yield infinite recursion call
-;;because x = 5 before calling ((Y biz) 5) one more time, so X will keep increasing and will never hav a = x
+;;because x = 5 before calling ((Y biz) 5) one more time, so x will keep increasing and will never have a = x
 
 ;;((Y! biz) 5) ;;NO Answer
 
@@ -690,6 +690,23 @@ Nx
 (print '((Y! biz2) 5))
 (println '=)
 ((Y! biz2) 5) ;;Has an answer
+
+
+(define biz-correct
+  (let ((x 0))
+    (lambda (f)
+      (lambda (a)
+        (set! x (add1 x)) ;;<- Now x will be increased with every recursion
+        (print 'x=)
+        (println x)
+        (if (= a x)
+            0
+            (f a))))))
+
+(print '****)
+(print '((Y! biz-correct) 5))
+(println '=)
+((Y! biz-correct) 5)
 
 ;;biz3 is similar to the original biz and biz1 but with more println for clarification
 (define biz3 

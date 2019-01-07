@@ -754,6 +754,78 @@ Rs
 (depth* '(c (b (a b) a) a))
 
 
+(defun D (depth*)
+  (lambda (s)
+    (cond
+     ((null s) 1)
+     ((atom? (car s))
+      (funcall depth* (cdr s)))
+     (t (max
+	 (1+ (funcall depth* (car s)))
+	 (funcall depth* (cdr s)))))))
+
+(setq depth* (Y! (function D)))
+
+(funcall depth* '((pickled) peppers (peppers pickled)))
+(funcall depth* '(c (b (a b) a) a))
+
+;;-------------------------------------------------
+
+;;Applicative-Order Y
+(defun Y (le)
+  ((lambda (f) (funcall f f))
+   (lambda (f)
+     (funcall le (lambda (x)
+		   (funcall (funcall f f) x))))))
+
+(makunbound 'length)
+
+(setq length (Y (function L)))
+
+(funcall length '(1 2 3 4 5 6 7 8))
+
+(setq biz
+  (let ((x 0))
+    (lambda (f)
+      (setq x (1+ x))
+      (lambda (a)
+	(prin1 x)
+	(prin1 " ")
+	(if (= a x)
+	    0
+	  (funcall f a))))))
+
+
+(funcall (Y biz) 5) ;;=> 0
+
+;;Call it again
+;;(funcall (Y biz) 5) ;;No answer, Infinite recursion. Lisp nesting exceeds ‘max-lisp-eval-depth’"
+;; Because by end of the first call, x =5,so calling it again, x will keep increasing and will never be x = 5
+
+(funcall (Y! biz) 5) ;;=> Infinite recursion.Lisp nesting exceeds ‘max-lisp-eval-depth’"
+
+;;Check chapter 16 Scheme code for more details for (Y! biz) doesn't have an answer
+
+;;In nutshell, when (Y! biz) is evaluated before calling the resulting function , (setq x (1+ x)) is executed only once and will not be called again with every recursion, the test for end of the recursion never reached because x = 1 always. never increased
+
+;;However in (Y biz), (setq x (1+ x)) is executed in every recursion call. Check scheme code for the unfolding of this recursion
+
+;;One possible fix is as shown below
+
+(makunbound 'biz)
+
+(setq biz
+      (let ((x 0))
+	(lambda (f)
+	  (lambda (a)
+	    (setq x (1+ x)) ;;Moved her to be called with every recursion
+	    (prin1 x)
+	    (prin1 " ")
+	    (if (= a x)
+		0
+	      (funcall f a))))))
+
+(funcall (Y! biz) 5)
 
 
 
@@ -773,30 +845,6 @@ Rs
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
 
 
 
