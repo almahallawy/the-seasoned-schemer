@@ -229,7 +229,7 @@
 
 (define set-counter '())
 
-(define consC-3
+(define consC
   (let ((N 0))
     (set! counter
           (lambda ()
@@ -245,7 +245,7 @@
   (lambda (m)
     (if (zero? m)
         (quote pizza)
-        (consC-3 (deep-3 (sub1 m))
+        (consC (deep-3 (sub1 m))
                 (quote ())))))
 
 ;; (deep-3 5)
@@ -263,19 +263,180 @@
             (let ((result
                    (if (zero? n)
                        (quote pizza)
-                       (consC-3 (deepM-8 (sub1 n))
+                       (consC (deepM-8 (sub1 n))
                                 (quote ())))))
               (set! Rs (cons result Rs))
               (set! Ns (cons n Ns))
               result)
             exists)))))
 
+;; (set-counter 0)
+;; (deepM-8 5)
+;; (counter)
+
+;; (deepM-8 7)
+;; (counter) ;;counter should be 7, not 12, because that is point of DeepM
+
+;; (supercounter deepM-8)
+
+(define rember1*
+  (lambda (a l)
+    (letrec
+        ((R (lambda (l oh)
+              (cond
+                ((null? l) (oh (quote no)))
+                ((atom? (car l))
+                 (if (eq? (car l) a)
+                     (cdr l)
+                     (cons (car l)
+                           (R (cdr l) oh))))
+                (else
+                 (let ((new-car
+                        (call-with-current-continuation
+                         (lambda (oh)
+                           (R (car l) oh)))))
+                   (if (atom? new-car)
+                       (cons (car l)
+                             (R (cdr l) oh))
+                       (cons new-car (cdr l)))))))))
+      (let ((new-l
+             (call-with-current-continuation
+              (lambda (oh)
+                (R l oh)))))
+        (if (atom? new-l)
+            l
+            new-l)))))
+
+;; (rember1* 'noodles '((food) more (food)))
+;; (rember1* 'salad '((Swedish rye)
+;;                      (French (mustard salad tureky))
+;;                      salad))
+
+;; (rember1* 'meat '((pasta meat)
+;;                     pasta (noodles meat sauce)
+;;                     meat tomatoes))
+
+
+;;Using consC
+(define rember1*C
+  (lambda (a l)
+    (letrec
+        ((R (lambda (l oh)
+              (cond
+                ((null? l) (oh (quote no)))
+                ((atom? (car l))
+                 (if (eq? (car l) a)
+                     (cdr l)
+                     (consC (car l)
+                           (R (cdr l) oh))))
+                (else
+                 (let ((new-car
+                        (call-with-current-continuation
+                         (lambda (oh)
+                           (R (car l) oh)))))
+                   (if (atom? new-car)
+                       (consC (car l)
+                             (R (cdr l) oh))
+                       (consC new-car (cdr l)))))))))
+      (let ((new-l
+             (call-with-current-continuation
+              (lambda (oh)
+                (R l oh)))))
+        (if (atom? new-l)
+            l
+            new-l)))))
+
+;; (set-counter 0)
+
+;; (rember1*C 'noodles '((food) more (food)))
+
+;; (counter)
+
+;; (rember1*C 'salad '((Swedish rye)
+;;                      (French (mustard salad tureky))
+;;                      salad))
+;; (counter)
+
+
+(define eqlist?
+  (lambda (l1 l2)
+    (cond
+      ((and (null? l1) (null? l2)) #t)
+      ((or (null? l1) (null? l2)) #f)
+      ((and (atom? (car l1)) (atom? (car l2)))
+       (and (eq? (car l1) (car l2))
+            (eqlist? (cdr l1) (cdr l2))))
+      ((or (atom? (car l1)) (atom? (car l2))) #f)
+      (else
+       (and (eqlist? (car l1) (car l2))
+            (eqlist? (cdr l1) (cdr l2)))))))
+
+;;Version that failed by repeatedly checking whether anything had changed
+;;for the car of a list that was a list:
+(define rember1*-1
+  (lambda (a l)
+    (letrec
+        ((R (lambda (l)
+              (cond
+                ((null? l) (quote ()))
+                ((atom? (car l))
+                 (if (eq? (car l) a)
+                     (cdr l)
+                     (cons (car l)
+                           (R (cdr l)))))
+                (else
+                 (let ((av (R (car l))))
+                   (if (eqlist? (car l) av)
+                       (cons (car l)
+                             (R (cdr l)))
+                       (cons av (cdr l)))))))))
+      (R l))))
+
+;; (rember1*-1 'noodles '((food) more (food)))
+;; (rember1*-1 'salad '((Swedish rye)
+;;                      (French (mustard salad tureky))
+;;                      salad))
+
+;; (rember1*-1 'meat '((pasta meat)
+;;                     pasta (noodles meat sauce)
+;;                     meat tomatoes))
+
+;;use consC
+(define rember1*C2
+  (lambda (a l)
+    (letrec
+        ((R (lambda (l)
+              (cond
+                ((null? l) (quote ()))
+                ((atom? (car l))
+                 (if (eq? (car l) a)
+                     (cdr l)
+                     (consC (car l)
+                            (R (cdr l)))))
+                (else
+                 (let ((av (R (car l))))
+                   (if (eqlist? (car l) av)
+                       (consC (car l)
+                              (R (cdr l)))
+                       (consC av (cdr l)))))))))
+      (R l))))
+
 (set-counter 0)
-(deepM-8 5)
+
+(consC (consC 'food (quote ()))
+       (consC 'more
+              (consC (consC 'food (quote ()))
+                     (quote ()))))
 (counter)
 
-(deepM-8 7)
-(counter) ;;counter should be 7, not 12, because that is point of DeepM
+(set-counter 0)
 
-(supercounter deepM-8)
+(rember1*C2 'noodles '((food) more (food)))
 
+(counter)
+
+(set-counter 0)
+
+(rember1*C 'noodles '((food) more (food)))
+
+(counter)
