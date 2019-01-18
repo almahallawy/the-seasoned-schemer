@@ -255,7 +255,7 @@ Rs
 (funcall (deepM) 6)
 
 ;;Using defun doesn't keep the value of imaginary Rs and Ns between calls
-
+;;This from is umimaginable, Check pg 100 & 7th commandment
 (setq deepM
   (let ((Rs (quote ()))
 	(Ns (quote ())))
@@ -279,7 +279,7 @@ Rs
 (funcall deepM 10)
 
 ;;Reset deepM
-(setq deepM (quote ()))
+(makunbound 'deepM)
 
 ;;Using setq keep the value of the imaginary Rs Ns between calls
 (setq deepM
