@@ -111,7 +111,7 @@
 
 ;(deepM-4 3)
 
-;;replace the one use of D byt the experssion it names
+;;replace the one use of D by the experssion it names
 (define deepM-5
   (let ((Rs (quote ()))
         (Ns (quote ())))
