@@ -2,7 +2,7 @@
 
 ;Chapter 17, We Change, Therefore We are!
 
-;;
+;;Note: use c-x c-e to evaluate one line. Check racket mode help (C-x C-e		racket-send-last-sexp)
 
 (define atom?
   (lambda (x)
