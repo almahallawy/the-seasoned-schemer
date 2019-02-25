@@ -274,13 +274,13 @@
 
 (define long (lots 12))
 
-long
+;;long
 
 ;;(last-kons long)
 
 (set-cdr! (last-kons long) long) ;=> #0={egg egg egg egg egg egg egg egg egg egg egg egg . #0#}
 
-long 
+;;long 
 
 ;(kdr long)
 
@@ -306,6 +306,7 @@ long
                  (println p)
                  (print 'q=)
                  (println q)
+                 (println '===)
                  (cond
                    ((null? q) 0)
                    ((null? (kdr q)) 1)
@@ -322,18 +323,28 @@ long
             (add1 (C p (kdr p))))))))))
 
 ;(finite-lenkth long)
-;(finite-lenkth dozen)
+
+(define lk '(1 2 3 4 5))
+lk
+(set-cdr! (last-kons lk) lk)
+lk
+(finite-lenkth lk)
+
+(define ll '(1 2 3))
+(finite-lenkth ll)
+
 
 
 ;; Guy's Favorite Pie
-;; (define mongo
-;;   (kons (quote pie)
-;;         (kons (quote a)
-;;               (kons (quote la)
-;;                     (kons (quote mode)
-;;                           (quote ()))))))
-;; mongo
+(define mongo
+  (kons (quote pie)
+        (kons (quote a)
+              (kons (quote la)
+                    (kons (quote mode)
+                          (quote ()))))))
 
-;; (set-cdr! (kdr (kdr (kdr mongo))) (kdr mongo))
+mongo
 
-;; mongo
+(set-cdr! (kdr (kdr (kdr mongo))) (kdr mongo))
+
+mongo
