@@ -53,10 +53,14 @@
                   (quote ()))))))
 
 
-;; (deepB 6)
+;;(deepB 6)
 ;; (toppings 'mozzarella)
+;; (toppings 'cake)
 ;; (toppings (quote pizza))
-;; (cons (toppings 'cake) (quote ()))
+
+;Add another layer to the cake
+;;(cons (toppings 'cake) (quote ()))
+
 ;; (cons
 ;;  (cons
 ;;   (cons (toppings (quote mozzarella))
@@ -65,6 +69,32 @@
 ;;  (quote ()))
 
 (deepB 4)
-(cons (toppings (quote cake))
-      (toppings (quote cake)))
+;; (cons
+;;  (cons
+;;   (cons (toppings (quote mozzarella))
+;;         (quote ()))
+;;   (quote ()))
+;;  (quote ()))
 
+;;Just example to understand jump. jump remember the call stack ?!
+;; (define deepK
+;;   (lambda (m)
+;;     (cond
+;;       ((zero? m)
+;;        (call-with-current-continuation
+;;         (lambda (jump)
+;;           (set! toppings jump)
+;;           (quote pizza))))
+;;       (else (cons (deepB (sub1 m))
+;;                   (cons 6 (quote ())))))))
+;; (deepK 6)
+;; (toppings 'pizza)
+
+;; (cons (toppings (quote cake))
+;;       (toppings (quote cake)))
+
+
+(cons (toppings (quote cake))
+      (cons (toppings (quote mozzarella))
+            (cons (toppings (quote pizz))
+                  (quote ()))))
