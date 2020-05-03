@@ -64,6 +64,21 @@ ingredients
 
 ingredients
 
+;; 16-commandment
+(setq sweet-toothR
+      (let ((ingredients (quote ())))
+	(lambda (food)
+	  (setq ingredients
+		(cons food ingredients))
+	  (print ingredients)
+	  (cons food
+		(cons (quote cake) (quote ()))))))
+
+(funcall sweet-toothR (quote chocolate))
+(funcall sweet-toothR (quote fruit))
+(funcall sweet-toothR (quote carrot))
+(funcall sweet-toothR (quote cheese))
+
 (defun deep (m)
   (cond
    ((zerop m) (quote pizza))
@@ -254,8 +269,9 @@ Rs
 
 (funcall (deepM) 6)
 
-;;Using defun doesn't keep the value of imaginary Rs and Ns between calls
-;;This from is umimaginable, Check pg 100 & 7th commandment
+;; Using defun doesn't keep the value of imaginary Rs and Ns between calls
+;; This form is umimaginable, Check pg 100 & 7th commandment
+;; Use setq instead.
 (setq deepM
   (let ((Rs (quote ()))
 	(Ns (quote ())))
@@ -716,7 +732,7 @@ Rs
 
 (makunbound 'length)
 
-(setq length (Y! L));; Error: Void variable L, why, because we L is not variable, it is function
+(setq length (Y! L));; Error: Void variable L, why, because L is not variable, it is function
 ;; and we need to pass Y! a function
 
 (boundp 'L)
@@ -826,29 +842,3 @@ Rs
 	      (funcall f a))))))
 
 (funcall (Y! biz) 5)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

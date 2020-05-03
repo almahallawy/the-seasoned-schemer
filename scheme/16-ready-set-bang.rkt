@@ -317,7 +317,7 @@ Rs
               (set! Rs (cons result Rs))
               (set! Ns (cons result Ns))
               result)
-            (find n Ns Rs))))))
+            exists)))))
 
 (define deep
   (lambda (n)
@@ -561,7 +561,6 @@ Rs
                (depth* (cdr s))))))))
 
 
-         
 (define depth* (Y! D))
 
 (depth* '((pickled) peppers (peppers pickled)))
@@ -726,7 +725,7 @@ Nx
 (define h4 (lambda (l) (quote ())))
 
 (println '****x=4)
-(set! x 4)  ;setting x=4 will in order for (h4 5) to work, note that (add1 x) is executed once when evaluating (set! h4..), biz3_1 is printed
+(set! x 4)  ;setting x=4 in order for (h4 5) to work, note that (add1 x) is executed once when evaluating (set! h4..), biz3_1 is printed
 
 x
 
@@ -777,7 +776,7 @@ x
 ;(h4 6)  ;inifinte loop. biz3_2 ll be printed infinitly. And x is not increased, which means (set! x (add1 x)) is not executed
 ;;((Y! biz3) 5) ;;Also will go to infinite loop.
 
-;;Comparing ((Y biz3) 5) vs ((Y! biz3) 5) / (h4 5)) shows that (set! x (add1 x)) is executed in Y with every recursion call but it is  not executed in Y! or h4 with every recursion call.
+;;Comparing ((Y biz3) 5) vs ((Y! biz3) 5) & (h4 5)) shows that (set! x (add1 x)) is executed in Y with every recursion call but it is  not executed in Y! or h4 with every recursion call.
 
 ;; When evaluting (set! h4 ..)  or (Y! biz3) , (set! x (add1 x)) evaluted only once, but it is not evaluated when we recur using h4 or Y! because (set! x (add1 x))  doesn't exist anymore. Why?
 
@@ -793,6 +792,9 @@ x
 
 (println '--------------------------------------------------------)
 
+(print '****)
+(print '(Y biz3))
+(println '=)
 ;;(Y biz3) =
 
 ((lambda (le)
