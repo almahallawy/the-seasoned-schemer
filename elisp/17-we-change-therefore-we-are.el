@@ -28,14 +28,9 @@
 		 (t (funcall A (cdr ns) (cdr rs)))))))
     (funcall A Ns Rs)))
 
-(setq RR)
-
 (defun deepM () ;;This from is umimaginable, Check pg 100 & 7th commandment
   (let ((Rs (quote ())) ;;Using defun doesn't keep the value of imaginary Rs and Ns between calls
 	(Ns (quote ())))
-    (setq RR
-	  (lambda ()
-	    Rs))
     (letrec
 	((D (lambda (m)
 	      (if (zerop m)
@@ -59,7 +54,30 @@
 
 (funcall (deepM) 10)
 
+;;Help D with its work, D should refer to deepM instead of itself
+(defun deepM () ;;This from is umimaginable, Check pg 100 & 7th commandment
+  (let ((Rs (quote ())) ;;Using defun doesn't keep the value of imaginary Rs and Ns between calls
+	(Ns (quote ())))
+    (letrec
+	((D (lambda (m)
+	      (if (zerop m)
+		  (quote pizza)
+		(cons (funcall (deepM) (1- m))
+		      (quote ()))))))
+      (lambda (n)
+	(let ((exists (find n Ns Rs)))
+	  (if (null exists)
+	      (let ((result (funcall D n)))
+		(print Rs)
+		(setq Rs (cons result Rs))
+		(print Ns)
+		(setq Ns (cons n Ns))
+		result)
+	    exists))))))
 
+(funcall (deepM) 4)
+
+;; Use setq
 (setq deepM
       (let ((Rs (quote ()))
 	    (Ns (quote ())))
@@ -253,7 +271,7 @@
 
 ;;use consC in deep
 
-(makunbound 'deep)
+(fmakunbound 'deep)
 
 (defun deep (m)
   (if (zerop m)
@@ -289,7 +307,6 @@ max-lisp-eval-depth
 
 max-specpdl-size
 (setq max-specpdl-size 6000)
-
 
 print-circle
 (setq print-circle 6000)
@@ -370,6 +387,11 @@ print-circle
 (supercounter deepM)
 (funcall counter)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; A LISP programmer knows the value of everything but the cost of nothing ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 (defun rember1* (a l)
   (letrec
       ((R (lambda (l oh)
@@ -401,7 +423,7 @@ print-circle
 
 (rember1* 'meat '((pasta meat)
                     pasta (noodles meat sauce)
-                    meat tomatoes))		 
+                    meat tomatoes))
 
 
 ;;Using counting version of cons
@@ -485,7 +507,7 @@ print-circle
 
 (rember1* 'meat '((pasta meat)
                     pasta (noodles meat sauce)
-                    meat tomatoes))		 
+                    meat tomatoes))
 
 ;;Using consC
 (defun rember1*C1 (a l)

@@ -2,7 +2,7 @@
 
 ;Chapter 17, We Change, Therefore We are!
 
-;;Note: use c-x c-e to evaluate one line. Check racket mode help (C-x C-e		racket-send-last-sexp)
+;;Note: use c-x c-e to evaluate one line at time instead of using C-c C-c. Check racket mode help (C-x C-e racket-send-last-sexp)
 
 (define atom?
   (lambda (x)
@@ -40,7 +40,9 @@
         (let ((exists (find n Ns Rs)))
           (if (atom? exists)
               (let ((result (D n)))
+                (println Rs)
                 (set! Rs (cons result Rs))
+                (println Ns)
                 (set! Ns (cons n Ns))
                 result)
               exists))))))
@@ -61,7 +63,9 @@
         (let ((exists (find n Ns Rs)))
           (if (atom? exists)
               (let ((result (D n)))
+                (println Rs)
                 (set! Rs (cons result Rs))
+                (println Ns)
                 (set! Ns (cons n Ns))
                 result)
               exists))))))
@@ -69,7 +73,12 @@
 
 ;(deepM-2 7)
 
-;(letrec ..) is not longer needed because D is no longer mentioned in the definition of D
+;; (letrec ..) is not longer needed because D is no longer mentioned in the definition of D
+;; https://www.scheme.com/tspl4/binding.html#./binding:h4
+;; In (letrec ((var expr) ...) body1 body2 ...)  all of the expressions expr ... are within the scope of all of the variables var .... letrec allows the definition of mutually recursive procedures.
+
+;; https://www.gnu.org/software/mit-scheme/documentation/mit-scheme-ref/Lexical-Binding.html#Lexical-Binding
+;; Each binding of a variable has the entire letrec expression as its region, making it possible to define mutually recursive procedures.
 (define deepM-3
   (let ((Rs (quote ()))
         (Ns (quote ())))
@@ -132,6 +141,21 @@
 
 ;(deepM-5 '2)
 
+;; https://www.scheme.com/tspl4/start.html#./start:h5
+;; Incidentally, a let expression is nothing more than the direct application of a lambda expression to a set of argument expressions. For example, the two expressions below are equivalent.
+;; (let ([x 'a]) (cons x x)) ≡ ((lambda (x) (cons x x)) 'a)
+;; In fact, a let expression is a syntactic extension defined in terms of lambda and procedure application, which are both core syntactic forms. In general, any expression of the form
+;; (let ((var expr) ...) body1 body2 ...)
+;; is equivalent to the following.
+;; ((lambda (var ...) body1 body2 ...)
+;;  expr ...)
+
+;; https://www.gnu.org/software/mit-scheme/documentation/mit-scheme-ref/Lexical-Binding.html#Lexical-Binding
+;; Note that the following are equivalent:
+
+;; (let ((variable init) …) expression expression …)
+;; ((lambda (variable …) expression expression …) init …)
+
 ;;introduce a name to name another name
 (define deepM-6
   (let ((Rs (quote ()))
@@ -164,7 +188,6 @@
                        (quote pizza)
                        (cons (deepM-7 (sub1 n))
                              (quote ())))))
-                   
                      (set! Rs (cons result Rs))
                      (set! Ns (cons n Ns))
                      result)
@@ -278,6 +301,10 @@
 ;; (counter) ;;counter should be 7, not 12, because that is point of DeepM
 
 ;; (supercounter deepM-8)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; A LISP programmer knows the value of everything but the cost of nothing ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define rember1*
   (lambda (a l)
