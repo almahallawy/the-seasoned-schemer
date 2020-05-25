@@ -6,7 +6,6 @@
 (setq eval-expression-print-level nil)
 (setq eval-expression-print-length nil)
 
-
 (fset 'kons 'cons)
 (fset 'kar 'car)
 (fset 'kdr 'cdr)
@@ -24,6 +23,8 @@
   (cond
    ((null l) 0)
    (t (1+ (lenkth (kdr l))))))
+
+lenkth
 
 (lenkth (lots 3))
 (lenkth (lots 5))
@@ -48,7 +49,7 @@
 	  (setq N (1+ N))
 	  (kons x y))))
 
-v(defun add-at-end (l)
+(defun add-at-end (l)
   (cond
    ((null (kdr l))
     (funcall konsC (kar l)
@@ -93,7 +94,7 @@ v(defun add-at-end (l)
 
 
 ;From Little Schemer -  Chapter 6
-;Another representations fo numbers
+;Another representations for numbers
 ;Zero (), One (()), Two (() ()), Three (() () ())
 
 ;; (defun sero? (n)
@@ -186,7 +187,7 @@ v(defun add-at-end (l)
 dozen
 
 (setq bakers-dozen-again (add-at-end dozen))
-
+(funcall kounter)
 
 (defun eklist? (ls1 ls2)
   (cond
@@ -216,7 +217,6 @@ dozen
        (kons (quote egg) (quote ())))
 
 
-
 (defun last-kons (ls)
   (cond
    ((null (kdr ls)) ls)
@@ -225,8 +225,8 @@ dozen
 (setq long (lots 12))
 (lenkth long)
 (set-kdr (last-kons long) long)
-(lenkth long)
 
+(lenkth long)
 
 (setq long (lots 12))
 (set-kdr (last-kons long) (kdr (kdr long)))
@@ -254,8 +254,6 @@ dozen
        (t (1+ (funcall C p (kdr p))))))))
 
 (setq lk '(1 2 3 4 5))
-(1 2 3 4 5)
-
 lk
 (set-kdr (last-kons lk) lk)
 lk
@@ -267,7 +265,6 @@ lk
 
 ;; (setq lk '(1 2 3))
 ;; (set-kdr (last-kons lk) lk)
-
 
 ;; Guy's Favorite Pie
 (setq mongo
@@ -282,38 +279,3 @@ mongo
 (set-kdr (kdr (kdr (kdr mongo))) (kdr mongo))
 
 mongo
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

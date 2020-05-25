@@ -97,6 +97,7 @@
 ;; (add-at-end (lots 3))
 ;; (kounter)
 
+(set-cdr! '(1) '(2))
 ;Add an egg at the end without making any new kons except for the last one
 ;This will fail if we use set-cdr! in Racket. Check http://blog.racket-lang.org/2007/11/getting-rid-of-set-car-and-set-cdr.html
 ;;That is why we include (require sicp)
@@ -112,12 +113,13 @@
                 (else (A (kdr ls)))))))
       (A l)
       l)))
-    
 
+;; (set-kounter 0)
 ;;(add-at-end-too (lots 3))
+;; (kounter)
 
 ;From Little Schemer -  Chapter 6
-;Another representations fo numbers
+;Another representations for numbers
 ;Zero (), One (()), Two (() ()), Three (() () ())
 
 ;; (define sero?
@@ -179,7 +181,7 @@
 ;; (bons (quote egg))
 ;; (kar2 (bons (quote egg)))
 ;; (kdr2 (bons (quote egg)))
-;; (set-kdr (bons (quote egg)) '())
+;; (set-kdr (bons (quote egggo)) '())
 
 ;;Use set-kdr and bons to define kons
 (define kons2
@@ -197,13 +199,15 @@
 
 ;dozen
 
+(set-kounter 0)
 (define bakers-dozen (add-at-end dozen))
-
+(kounter)
 ;; bakers-dozen
 ;; dozen
 
 (define bakers-dozen-too 
   (add-at-end-too dozen))
+(kounter)
 
 ;; bakers-dozen-too
 ;; bakers-dozen
@@ -211,7 +215,7 @@
 
 (define bakers-dozen-again
   (add-at-end dozen))
-
+(kounter)
 ;; bakers-dozen-again
 ;; dozen
 
@@ -233,10 +237,15 @@
           (t2 (kdr c2)))
       (set-cdr! c1 1)
       (set-cdr! c2 2)
-      (let ((v (= (kdr c1) (kdr c2))))
+      (let ((v (= (kdr c1) (kdr c2)))) ;not that (kdr c1) and (kdr c2) are not lists.
         (set-cdr! c1 t1)
         (set-cdr! c2 t2)
         v))))
+
+(define testcdr '(1 2))
+(cdr testcdr)
+(set-cdr!  testcdr 3)
+testcdr
 
 ;; dozen
 ;; (same? dozen dozen)
@@ -280,16 +289,18 @@
 
 (set-cdr! (last-kons long) long) ;=> #0={egg egg egg egg egg egg egg egg egg egg egg egg . #0#}
 
-;;long 
+;;long
 
 ;(kdr long)
 
 ;(lenkth long) ;;No answer
 
+;; (define long (lots 12))
 ;; (set-cdr! (last-kons long) (kdr long)) ;=> {egg . #0={egg egg egg egg egg egg egg egg egg egg egg . #0#}}
 
 ;;long
 
+;; (define long (lots 12))
 ;; (set-cdr! (last-kons long) (kdr (kdr long))) ;=> {egg egg . #0={egg egg egg egg egg egg egg egg egg egg . #0#}}
 
 ;; long
