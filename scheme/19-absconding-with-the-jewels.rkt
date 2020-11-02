@@ -296,7 +296,7 @@
      (lambda (here)
        (set! leave here)
        (waddle l)
-       (println  "start-it2")
+       (println  "start-it2") ;;comment to see the final value when l is exhausted = ()
        ))))
 
 ;; (start-it2 '((donuts)
@@ -321,11 +321,11 @@
        (set! leave here-again)
        (fill (quote go))))))
 
-;; (start-it2 '((donuts)
-;;              (cheerios (cheeriosss (spaghettios)))
-;;              donut))
-;; (get-next (quote go))
-;; (rest1 (quote go))
+(start-it2 '((donuts)
+             (cheerios (cheeriosss (spaghettios)))
+             donut))
+(get-next (quote go))
+(rest1 (quote go))
 
 (define rest2
   (lambda (x)
@@ -335,14 +335,15 @@
 ;; (rest2 (quote go))
 
 
-;;Does get-next deserves its ;; (start-it2 '((donuts)
-;;              (cheerios (cheeriosss (spaghettios)))
-;;              donut))
-;; (get-next (quote go))
-;; (get-next (quote go))
-;; (get-next (quote go))
-;; (get-next (quote go))
-;; (get-next (quote go)) ;;Wow! -> get back to start-it2
+;;Does get-next deserves its name
+(start-it2 '((donuts)
+             (cheerios (cheeriosss (spaghettios)))
+             donut))
+(get-next (quote go))
+(get-next (quote go))
+(get-next (quote go))
+(get-next (quote go))
+(get-next (quote go)) ;;Wow! -> get back to start-it2
 
 
 (define get-first
@@ -376,26 +377,25 @@
 (get-first '((donuts)
              (cheerios (cheeriosss (spaghettios)))
              donut))
-
-;; (get-next-2 (quote go))
-;; (get-next-2 (quote go))
-;; (get-next-2 (quote go))
-;; (get-next-2 (quote go))
-;; (get-next-2 (quote go))
-
-
-;; (get-first '())
-;; (get-first '(donut))
-;; (get-next (quote go))
-
-;; (get-first '(fish (chips)))
-;; (get-next (quote go))
-;; (get-next (quote go))
+(get-next-2 (quote go))
+(get-next-2 (quote go))
+(get-next-2 (quote go))
+(get-next-2 (quote go))
+(get-next-2 (quote go))
 
 
-;; (get-first '(fish (chips) chips))
-;; (get-next (quote go))
-;; (get-next (quote go))
+(get-first '())
+(get-first '(donut))
+(get-next (quote go))
+
+(get-first '(fish (chips)))
+(get-next (quote go))
+(get-next (quote go))
+
+
+(get-first '(fish (chips) chips))
+(get-next (quote go))
+(get-next (quote go))
 
 
 (define two-in-a-row*?
